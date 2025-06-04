@@ -168,11 +168,11 @@ class MangaKatanaPlugin(MangaPluginBase):
         for chapterNode in chaptersNodes:
             chapterTitleNode = chapterNode.xpath(".//div[@class='chapter']/*")[0]
             chapterDateNode = chapterNode.xpath(".//div[@class='update_time']")[0]
-            match = re.search(r'Chapter\s+(\d+)', chapterTitleNode.text)
+            match = re.search(r'Chapter\s+(\d+(?:\.\d+)?)(?::\s*(.*))?', chapterTitleNode.text)
 
 
             chapter_dict = self.get_chapter_dict()
-            chapter_dict["name"] = str(match.group(1))
+            chapter_dict["name"] = str(match.group(2) or match.group(1))
             chapter_dict["localization"] = "en"
             dt = datetime.strptime(chapterDateNode.text, "%b-%d-%Y")
             dt_utc = dt.replace(tzinfo=pytz.UTC)
@@ -183,7 +183,7 @@ class MangaKatanaPlugin(MangaPluginBase):
             chapter_dict["colorist"] = chapter_dict["writer"]
             chapter_dict["letterer"] = chapter_dict["writer"]
             chapter_dict["cover_artist"] = chapter_dict["writer"]
-            chapter_dict["chapter_number"] = float(chapter_dict["name"])
+            chapter_dict["chapter_number"] = float(match.group(1))
             chapter_dict["arguments"] = arguments
             chapter_dict["url"] = chapterTitleNode.get("href")
             chapter_dict["source_url"] = chapter_dict["url"]
